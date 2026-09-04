@@ -1,4 +1,4 @@
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "nav_msgs/msg/path.hpp"
@@ -13,7 +13,7 @@ class purePursuit:public rclcpp::Node
 public:
     purePursuit():Node("pure_pursuit")
     {
-        cmd_vel_=this->create_publisher<geometry_msgs::msg::TwistStamped>("/cmd_vel",10);
+        cmd_vel_=this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel",10);
         odom_subs_=this->create_subscription<nav_msgs::msg::Odometry>("/odom", 10, std::bind(&purePursuit::odom_callback, this, std::placeholders::_1));
         planned_path_subs_=this->create_subscription<nav_msgs::msg::Path>("/planned_path", 10, std::bind(&purePursuit::planned_path_callback, this, std::placeholders::_1));
         smooth_path_subs_=this->create_subscription<nav_msgs::msg::Path>("/smooth_path", 10, std::bind(&purePursuit::planned_path_callback, this, std::placeholders::_1));
@@ -56,25 +56,25 @@ private:
     // };
 
     // S curve
-    // std::vector<std::pair<double,double>> path = {
-    // {0.0, 0.0},
-    // {0.5, 0.0},
-    // {1.0, 0.0},
-    // {1.5, 0.1},
-    // {2.0, 0.3},
-    // {2.5, 0.6},
-    // {3.0, 1.0},
-    // {3.5, 1.5},
-    // {4.0, 2.0},
-    // {4.5, 2.4},
-    // {5.0, 2.5},
-    // {5.5, 2.4},
-    // {6.0, 2.0},
-    // {6.5, 1.5},
-    // {7.0, 1.0},
-    // {7.5, 0.5},
-    // {8.0, 0.0}
-    // };
+    std::vector<std::pair<double,double>> path = {
+    {0.0, 0.0},
+    {0.5, 0.0},
+    {1.0, 0.0},
+    {1.5, 0.1},
+    {2.0, 0.3},
+    {2.5, 0.6},
+    {3.0, 1.0},
+    {3.5, 1.5},
+    {4.0, 2.0},
+    {4.5, 2.4},
+    {5.0, 2.5},
+    {5.5, 2.4},
+    {6.0, 2.0},
+    {6.5, 1.5},
+    {7.0, 1.0},
+    {7.5, 0.5},
+    {8.0, 0.0}
+    };
 
     // 90 deg
     // std::vector<std::pair<double,double>> path = {
@@ -93,7 +93,7 @@ private:
     // {4.0, 2.0}
     // };
 
-    std::vector<std::pair<double,double>> path;
+    // std::vector<std::pair<double,double>> path;
 
 
     // Get distance between two points
@@ -389,7 +389,7 @@ private:
 
 
         double lookahead_distance=0.5;
-        geometry_msgs::msg::TwistStamped cmd;
+        geometry_msgs::msg::Twist cmd;
 
         if (path.size() < 2)
         {
@@ -486,8 +486,8 @@ private:
             {
                 double p=0.5*angle_error;
                 // double l=0.05*linear_error;
-                cmd.twist.linear.x=0.5;
-                cmd.twist.angular.z=p;
+                cmd.linear.x=0.5;
+                cmd.angular.z=p;
                 // printf("Present:Current x,y:%.2f,%.2f | first_p x,y:%.2f,%.2f second_p x,y:%.2f,%.2f | Dis:%.2f | Rem:%.2f | final:x,y:%.2f,%.2f |Lerr:%.2f | Aerr:%.2f | Aspeed:%.2f goal:%.2f|yaw:%.2f \n",current_x,current_y, first_point_x,first_point_y, second_point_x,second_point_y, current_distance_x_fn, remaining_dist, final_x,final_y, linear_error, angle_error,p,angle_to_goal,yaw );
                 cmd_vel_->publish(cmd);
             //     printf("breaking ");
@@ -496,7 +496,7 @@ private:
             }
        }
     }
-    rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_subs_;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr planned_path_subs_;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr smooth_path_subs_;
